@@ -1,5 +1,7 @@
 {
   "name": "sketch-unsplasher",
+  "description": "Fills shapes or symbols with images from Unsplash",
+  "author": "Giles Perry <giles@gilesperry.info> (http://gilesperry.info/)",
   "version": "0.1.0",
   "engines": {
     "sketch": ">=3.0"
@@ -7,7 +9,8 @@
   "skpm": {
     "name": "sketch-unsplasher",
     "manifest": "src/manifest.json",
-    "main": "plugin.sketchplugin",
+    "identifier" : "com.gilesperry.sketch-unsplasher",
+    "main": "SketchUnsplasher.sketchplugin",
     "assets": [
       "assets/**/*"
     ]
@@ -18,8 +21,12 @@
     "start": "skpm-build --watch --run",
     "postinstall": "npm run build && skpm-link"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/perrysmotors/sketch-unsplasher.git"
+  },
+  "license": "MIT",
   "devDependencies": {
     "@skpm/builder": "^0.5.2"
-  },
-  "author": "Giles Perry <giles@gilesperry.info>"
+  }
 }

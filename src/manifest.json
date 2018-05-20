@@ -1,18 +1,19 @@
 {
-  "compatibleVersion": 3,
+  "compatibleVersion": 50,
   "bundleVersion": 1,
   "icon": "icon.png",
   "commands": [
     {
-      "name": "my-command",
-      "identifier": "my-command-identifier",
-      "script": "./my-command.js"
+      "name": "Fill with Images from Unsplash",
+      "identifier": "randomImages",
+      "script": "./unsplasher.js",
+      "handler": "onUnsplash"
     }
   ],
   "menu": {
-    "title": "sketch-unsplasher",
+    "title": "Unsplasher",
     "items": [
-      "my-command-identifier"
+      "randomImages"
     ]
   }
 }
