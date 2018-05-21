@@ -1,6 +1,6 @@
-var UI = require('sketch/ui'),
-    DOM = require('sketch/dom'),
-    SymbolMaster = DOM.SymbolMaster;
+const UI = require('sketch/ui'),
+      DOM = require('sketch/dom'),
+      SymbolMaster = DOM.SymbolMaster;
 
 export function onUnsplash(context) {
 
@@ -11,23 +11,23 @@ export function onUnsplash(context) {
   let imageLayers = selectedLayers.filter(layer => layer.type === 'Shape' || layer.type === 'SymbolInstance');
 
   if (imageLayers.length === 0) {
-    UI.message('Select one or more shapes or symbols');
+    UI.message('Select some shapes or symbols');
   } else {
 
     let foreignSymbolMasters = getForeignSymbolMasters(document);
 
-    try {
+    imageLayers.forEach(layer => {
 
-      imageLayers.forEach(layer => {
+      if (layer.type === 'Shape') {
 
-        if (layer.type === 'Shape') {
+        let size = {
+          width: layer.frame.width,
+          height: layer.frame.height
+        };
 
-          let size = {
-            width: layer.frame.width,
-            height: layer.frame.height
-          };
+        let imageURL = randomUnsplashURL(size);
 
-          let imageURL = randomUnsplashURL(size);
+        try {
           let response = requestWithURL(imageURL);
           if (response) {
             let nsimage = NSImage.alloc().initWithData(response);
@@ -37,50 +37,57 @@ export function onUnsplash(context) {
             fill.setImage(imageData);
             fill.setPatternFillType(1);
           } else {
-            throw 'Unsplash says no. Check your internet...';
+            throw '⚠️ Unsplash says no. Check your internet...';
+          }
+        } catch (e) {
+          log(e);
+          UI.message(e);
+          return;
+        }
+
+      } else {
+
+        let imageOverrides = layer.overrides.filter(override => override.property === 'image');
+        let largestOverride, largestSize, largestArea = 0;
+
+        imageOverrides.forEach((override) => {
+
+          let affectedLayer = override.sketchObject.affectedLayer();
+          let size = {
+            width: affectedLayer.frame().width(),
+            height: affectedLayer.frame().height()
+          };
+
+          // Calculate scale factor for nested overrides
+          let IDs = override.path.split('/');
+
+          for (let i = 0; i < IDs.length - 1; i++) {
+            let sketchObject;
+
+            let layerInPath = document.getLayerWithID(IDs[i]);
+            if (layerInPath === undefined) {
+              sketchObject = getForeignLayerWithID(IDs[i], foreignSymbolMasters);
+            } else {
+              sketchObject = layerInPath.sketchObject;
+            }
+
+            let scale = getInstanceScale(sketchObject);
+            size.width = size.width * scale.x;
+            size.height = size.height * scale.y;
           }
 
-        } else {
+          let area = size.width * size.height;
+          if (area > largestArea) {
+            largestArea = area;
+            largestSize = size;
+            largestOverride = override;
+          }
 
-          let imageOverrides = layer.overrides.filter(override => override.property === 'image');
-          let largestOverride, largestSize, largestArea = 0;
+        });
 
-          imageOverrides.forEach((override) => {
+        let imageURL = randomUnsplashURL(largestSize);
 
-            let affectedLayer = override.sketchObject.affectedLayer();
-            let size = {
-              width: affectedLayer.frame().width(),
-              height: affectedLayer.frame().height()
-            };
-
-            // Calculate scale factor for nested overrides
-            let IDs = override.path.split('/');
-
-            for (let i = 0; i < IDs.length - 1; i++) {
-              let sketchObject;
-
-              let layerInPath = document.getLayerWithID(IDs[i]);
-              if (layerInPath === undefined) {
-                sketchObject = getForeignLayerWithID(IDs[i], foreignSymbolMasters);
-              } else {
-                sketchObject = layerInPath.sketchObject;
-              }
-
-              let scale = getInstanceScale(sketchObject);
-              size.width = size.width * scale.x;
-              size.height = size.height * scale.y;
-            }
-
-            let area = size.width * size.height;
-            if (area > largestArea) {
-              largestArea = area;
-              largestSize = size;
-              largestOverride = override;
-            }
-
-          });
-
-          let imageURL = randomUnsplashURL(largestSize);
+        try {
           let response = requestWithURL(imageURL);
           if (response) {
             let nsimage = NSImage.alloc().initWithData(response);
@@ -89,16 +96,16 @@ export function onUnsplash(context) {
             let overridePoint = largestOverride.sketchObject.overridePoint();
             layer.sketchObject.setValue_forOverridePoint_(imageData, overridePoint);
           } else {
-            throw 'Unsplash says no. Check your internet...';
+            throw '⚠️ Unsplash says no. Check your internet...';
           }
-
+        } catch (e) {
+          log(e);
+          UI.message(e);
+          return;
         }
-      });
 
-    } catch (e) {
-      UI.message(e);
-    }
-
+      }
+    });
   }
 }
 
