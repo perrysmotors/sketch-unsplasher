@@ -241,8 +241,8 @@ function getForeignLayerWithID(layerID, masters) {
 function getInstanceScale(instance) {
   // Expects sketchObject
   var master = instance.symbolMaster();
-  xScale = instance.frame().width() / master.frame().width();
-  yScale = instance.frame().height() / master.frame().height();
+  var xScale = instance.frame().width() / master.frame().width();
+  var yScale = instance.frame().height() / master.frame().height();
   return {
     x: xScale,
     y: yScale
