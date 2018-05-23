@@ -6,6 +6,7 @@
     {
       "name": "Fill with Images from Unsplash",
       "identifier": "randomImages",
+      "shortcut": "ctrl command u",
       "script": "unsplasher.js",
       "handler": "onUnsplash"
     }
