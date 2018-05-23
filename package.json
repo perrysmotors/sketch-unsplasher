@@ -7,7 +7,7 @@
     "sketch": ">=3.0"
   },
   "skpm": {
-    "name": "sketch-unsplasher",
+    "name": "Unsplasher",
     "manifest": "src/manifest.json",
     "identifier" : "com.gilesperry.sketch-unsplasher",
     "main": "SketchUnsplasher.sketchplugin",
