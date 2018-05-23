@@ -132,14 +132,16 @@ function onUnsplash(context) {
         var imageOverrides = layer.overrides.filter(function (override) {
           return override.property === 'image';
         });
+        var scale = getInstanceScale(layer.sketchObject); // Approx. scale depending on constraints
+
         var largestOverride,
             largestSize,
             largestArea = 0;
         imageOverrides.forEach(function (override) {
           var affectedLayer = override.sketchObject.affectedLayer();
           var size = {
-            width: affectedLayer.frame().width(),
-            height: affectedLayer.frame().height()
+            width: affectedLayer.frame().width() * scale.x,
+            height: affectedLayer.frame().height() * scale.y
           }; // Calculate scale factor for nested overrides
 
           var IDs = override.path.split('/');
@@ -154,9 +156,10 @@ function onUnsplash(context) {
               sketchObject = layerInPath.sketchObject;
             }
 
-            var scale = getInstanceScale(sketchObject);
-            size.width = size.width * scale.x;
-            size.height = size.height * scale.y;
+            var _scale = getInstanceScale(sketchObject);
+
+            size.width = size.width * _scale.x;
+            size.height = size.height * _scale.y;
           }
 
           var area = size.width * size.height;
