@@ -48,14 +48,16 @@ export function onUnsplash(context) {
       } else {
 
         let imageOverrides = layer.overrides.filter(override => override.property === 'image');
+        let scale = getInstanceScale(layer.sketchObject); // Approx. scale depending on constraints
         let largestOverride, largestSize, largestArea = 0;
 
         imageOverrides.forEach((override) => {
 
           let affectedLayer = override.sketchObject.affectedLayer();
+
           let size = {
-            width: affectedLayer.frame().width(),
-            height: affectedLayer.frame().height()
+            width: affectedLayer.frame().width() * scale.x,
+            height: affectedLayer.frame().height() * scale.y
           };
 
           // Calculate scale factor for nested overrides
