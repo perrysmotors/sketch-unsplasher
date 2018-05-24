@@ -139,7 +139,8 @@ function getInstanceScale(instance) { // Expects sketchObject
 function randomUnsplashURL(size) {
   let width = Math.round(size.width * 2);
   let height = Math.round(size.height * 2);
-  return 'https://source.unsplash.com/random/' + width + 'x' + height;
+  let randomImageIndex = Math.floor(Math.random() * 1000);
+  return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
 }
 
 function requestWithURL(url) {
