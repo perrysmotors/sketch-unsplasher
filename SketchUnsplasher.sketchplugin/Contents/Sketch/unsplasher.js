@@ -255,7 +255,8 @@ function getInstanceScale(instance) {
 function randomUnsplashURL(size) {
   var width = Math.round(size.width * 2);
   var height = Math.round(size.height * 2);
-  return 'https://source.unsplash.com/random/' + width + 'x' + height;
+  var randomImageIndex = Math.floor(Math.random() * 1000);
+  return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
 }
 
 function requestWithURL(url) {
