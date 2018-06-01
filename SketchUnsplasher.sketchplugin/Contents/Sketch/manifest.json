@@ -17,7 +17,7 @@
       "randomImages"
     ]
   },
-  "version": "0.1.0",
+  "version": "0.1.1-0",
   "description": "Fills shapes or symbols with images from Unsplash",
   "name": "Unsplasher",
   "disableCocoaScriptPreprocessor": true,
