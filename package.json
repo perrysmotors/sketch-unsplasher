@@ -2,14 +2,14 @@
   "name": "sketch-unsplasher",
   "description": "Fills shapes or symbols with images from Unsplash",
   "author": "Giles Perry <giles@gilesperry.info> (http://gilesperry.info/)",
-  "version": "0.1.0",
+  "version": "0.1.1-0",
   "engines": {
     "sketch": ">=3.0"
   },
   "skpm": {
     "name": "Unsplasher",
     "manifest": "src/manifest.json",
-    "identifier" : "com.gilesperry.sketch-unsplasher",
+    "identifier": "com.gilesperry.sketch-unsplasher",
     "main": "SketchUnsplasher.sketchplugin",
     "assets": [
       "assets/**/*"
