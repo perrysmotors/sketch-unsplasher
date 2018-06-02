@@ -9,7 +9,7 @@ function initOptions() {
   const defaults = {
     scaleFactor: 2,
     searchTerms: 'landscape',
-    collectionID: 1111575
+    collectionID: '1111575'
   };
   for (let option in defaults) {
     let value = evaluateString(Settings.settingForKey(option));
@@ -55,6 +55,20 @@ export function onSearch(context) {
   }
 }
 
+export function onCollection(context) {
+  let inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID);
+
+  if (inputString != 'null') {
+    if (inputString === '') {
+      UI.message('⚠️ You need to enter a valid Collection ID.');
+    } else {
+      options.collectionID = inputString;
+      Settings.setSettingForKey('collectionID', inputString);
+      unsplash('collection');
+    }
+  }
+}
+
 export function onSettings(context) {
   let items = ['1', '2', '3', '4'];
   let selectedIndex = items.findIndex(item => item === String(options.scaleFactor));
@@ -96,12 +110,7 @@ function unsplash(type = 'random') {
           height: layer.frame.height
         };
 
-        let imageURL;
-        if (type === 'search') {
-          imageURL = unsplashSearchURL(size);
-        } else {
-          imageURL = randomUnsplashURL(size);
-        }
+        let imageURL = getUnsplashURL(size, type);
 
         try {
           let response = requestWithURL(imageURL);
@@ -163,7 +172,7 @@ function unsplash(type = 'random') {
 
         });
 
-        let imageURL = randomUnsplashURL(largestSize);
+        let imageURL = getUnsplashURL(largestSize, type);
 
         try {
           let response = requestWithURL(imageURL);
@@ -212,18 +221,18 @@ function getInstanceScale(instance) { // Expects sketchObject
   return {x: xScale, y: yScale};
 }
 
-function randomUnsplashURL(size) {
+function getUnsplashURL(size, type) {
   let width = Math.round(size.width * options.scaleFactor);
   let height = Math.round(size.height * options.scaleFactor);
   let randomImageIndex = Math.floor(Math.random() * 1000);
-  return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
-}
 
-function unsplashSearchURL(size) {
-  let width = Math.round(size.width * options.scaleFactor);
-  let height = Math.round(size.height * options.scaleFactor);
-  let randomImageIndex = Math.floor(Math.random() * 1000);
-  return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + randomImageIndex;
+  if (type === 'search') {
+    return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + randomImageIndex;
+  } else if (type === 'collection') {
+    return 'https://source.unsplash.com/collection/' + options.collectionID + '/' + width + 'x' + height + '/?sig=' + randomImageIndex;
+  } else {
+    return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
+  }
 }
 
 function requestWithURL(url) {

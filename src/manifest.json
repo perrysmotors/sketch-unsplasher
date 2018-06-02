@@ -17,6 +17,12 @@
       "handler": "onSearch"
     },
     {
+      "name": "Fill from a Collection",
+      "identifier": "collection",
+      "script": "./unsplasher.js",
+      "handler": "onCollection"
+    },
+    {
       "name": "Settings",
       "identifier": "settings",
       "script": "./unsplasher.js",
@@ -28,6 +34,7 @@
     "items": [
       "randomImages",
       "search",
+      "collection",
       "-",
       "settings"
     ]
