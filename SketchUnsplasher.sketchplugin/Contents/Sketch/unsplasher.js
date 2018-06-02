@@ -80,15 +80,53 @@ var exports =
 /*!***************************!*\
   !*** ./src/unsplasher.js ***!
   \***************************/
-/*! exports provided: onUnsplash */
+/*! exports provided: onUnsplash, onSettings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onUnsplash", function() { return onUnsplash; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onSettings", function() { return onSettings; });
 var UI = __webpack_require__(/*! sketch/ui */ "sketch/ui"),
     DOM = __webpack_require__(/*! sketch/dom */ "sketch/dom"),
+    Settings = __webpack_require__(/*! sketch/settings */ "sketch/settings"),
     SymbolMaster = DOM.SymbolMaster;
+
+var options = initOptions();
+
+function initOptions() {
+  var defaults = {
+    scaleFactor: 2,
+    searchTerms: 'landscape',
+    collectionID: 1111575
+  };
+
+  for (var option in defaults) {
+    var value = evaluateString(Settings.settingForKey(option));
+
+    if (value === undefined) {
+      Settings.setSettingForKey(option, defaults[option]);
+    } else {
+      defaults[option] = value;
+    }
+  }
+
+  return defaults;
+}
+
+function evaluateString(string) {
+  if (string === 'true') {
+    return true;
+  } else if (string === 'false') {
+    return false;
+  } else if (string === String(parseInt(string))) {
+    return parseInt(string);
+  } else if (string === String(parseFloat(string))) {
+    return parseFloat(string);
+  } else {
+    return string;
+  }
+}
 
 function onUnsplash(context) {
   var document = DOM.getSelectedDocument(),
@@ -196,6 +234,20 @@ function onUnsplash(context) {
     });
   }
 }
+function onSettings(context) {
+  var items = ['1', '2', '3', '4'];
+  var selectedIndex = items.findIndex(function (item) {
+    return item === String(options.scaleFactor);
+  });
+  var selection = UI.getSelectionFromUser('Select the factor for scaling images', items, selectedIndex);
+  var ok = selection[2];
+
+  if (ok) {
+    var value = parseInt(items[selection[1]]);
+    options.scaleFactor = value;
+    Settings.setSettingForKey('scaleFactor', value);
+  }
+}
 
 function getForeignSymbolMasters(document) {
   var foreignSymbolList = document.sketchObject.documentData().foreignSymbols();
@@ -253,8 +305,8 @@ function getInstanceScale(instance) {
 }
 
 function randomUnsplashURL(size) {
-  var width = Math.round(size.width * 2);
-  var height = Math.round(size.height * 2);
+  var width = Math.round(size.width * options.scaleFactor);
+  var height = Math.round(size.height * options.scaleFactor);
   var randomImageIndex = Math.floor(Math.random() * 1000);
   return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
 }
@@ -277,6 +329,17 @@ module.exports = require("sketch/dom");
 
 /***/ }),
 
+/***/ "sketch/settings":
+/*!**********************************!*\
+  !*** external "sketch/settings" ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("sketch/settings");
+
+/***/ }),
+
 /***/ "sketch/ui":
 /*!****************************!*\
   !*** external "sketch/ui" ***!
@@ -296,6 +359,7 @@ module.exports = require("sketch/ui");
   }
 }
 that['onUnsplash'] = __skpm_run.bind(this, 'onUnsplash');
-that['onRun'] = __skpm_run.bind(this, 'default')
+that['onRun'] = __skpm_run.bind(this, 'default');
+that['onSettings'] = __skpm_run.bind(this, 'onSettings')
 
 //# sourceMappingURL=unsplasher.js.map

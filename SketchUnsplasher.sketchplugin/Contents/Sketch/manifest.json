@@ -9,12 +9,20 @@
       "shortcut": "ctrl command u",
       "script": "unsplasher.js",
       "handler": "onUnsplash"
+    },
+    {
+      "name": "Settings",
+      "identifier": "settings",
+      "script": "unsplasher.js",
+      "handler": "onSettings"
     }
   ],
   "menu": {
     "title": "Unsplasher",
     "items": [
-      "randomImages"
+      "randomImages",
+      "-",
+      "settings"
     ]
   },
   "version": "0.1.1-0",

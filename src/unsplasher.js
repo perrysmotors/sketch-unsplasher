@@ -1,6 +1,40 @@
 const UI = require('sketch/ui'),
       DOM = require('sketch/dom'),
+      Settings = require('sketch/settings'),
       SymbolMaster = DOM.SymbolMaster;
+
+var options = initOptions();
+
+function initOptions() {
+  const defaults = {
+    scaleFactor: 2,
+    searchTerms: 'landscape',
+    collectionID: 1111575
+  };
+  for (let option in defaults) {
+    let value = evaluateString(Settings.settingForKey(option));
+    if (value === undefined) {
+      Settings.setSettingForKey(option, defaults[option]);
+    } else {
+      defaults[option] = value;
+    }
+  }
+  return defaults
+}
+
+function evaluateString(string) {
+  if (string === 'true') {
+    return true;
+  } else if (string === 'false') {
+    return false;
+  } else if (string === String(parseInt(string))) {
+    return parseInt(string);
+  } else if (string === String(parseFloat(string))) {
+    return parseFloat(string);
+  } else {
+    return string;
+  }
+}
 
 export function onUnsplash(context) {
 
@@ -111,6 +145,24 @@ export function onUnsplash(context) {
   }
 }
 
+export function onSettings(context) {
+  let items = ['1', '2', '3', '4'];
+  let selectedIndex = items.findIndex(item => item === String(options.scaleFactor));
+
+  let selection = UI.getSelectionFromUser(
+    'Select the factor for scaling images',
+    items,
+    selectedIndex
+  );
+
+  let ok = selection[2];
+  if (ok) {
+    let value = parseInt(items[selection[1]]);
+    options.scaleFactor = value;
+    Settings.setSettingForKey('scaleFactor', value);
+  }
+}
+
 function getForeignSymbolMasters(document) {
   let foreignSymbolList = document.sketchObject.documentData().foreignSymbols();
   let symbolMasters = [];
@@ -137,8 +189,8 @@ function getInstanceScale(instance) { // Expects sketchObject
 }
 
 function randomUnsplashURL(size) {
-  let width = Math.round(size.width * 2);
-  let height = Math.round(size.height * 2);
+  let width = Math.round(size.width * options.scaleFactor);
+  let height = Math.round(size.height * options.scaleFactor);
   let randomImageIndex = Math.floor(Math.random() * 1000);
   return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
 }
