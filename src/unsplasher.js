@@ -36,7 +36,44 @@ function evaluateString(string) {
   }
 }
 
-export function onUnsplash(context) {
+export function onRandom(context) {
+  unsplash();
+}
+
+export function onSearch(context) {
+  let inputString = UI.getStringFromUser('Enter a search term', options.searchTerms);
+  let cleanValue = inputString.replace(/[\s,]+/g,' ').trim().replace(/\s+/g,',').toLowerCase();
+
+  if (inputString != 'null') {
+    if (cleanValue === '') {
+      UI.message('⚠️ You need to enter a keyword to search for.');
+    } else {
+      options.searchTerms = cleanValue;
+      Settings.setSettingForKey('searchTerms', cleanValue);
+      unsplash('search');
+    }
+  }
+}
+
+export function onSettings(context) {
+  let items = ['1', '2', '3', '4'];
+  let selectedIndex = items.findIndex(item => item === String(options.scaleFactor));
+
+  let selection = UI.getSelectionFromUser(
+    'Select the factor for scaling images',
+    items,
+    selectedIndex
+  );
+
+  let ok = selection[2];
+  if (ok) {
+    let value = parseInt(items[selection[1]]);
+    options.scaleFactor = value;
+    Settings.setSettingForKey('scaleFactor', value);
+  }
+}
+
+function unsplash(type = 'random') {
 
   var document = DOM.getSelectedDocument(),
       selection = document.selectedLayers,
@@ -59,7 +96,12 @@ export function onUnsplash(context) {
           height: layer.frame.height
         };
 
-        let imageURL = randomUnsplashURL(size);
+        let imageURL;
+        if (type === 'search') {
+          imageURL = unsplashSearchURL(size);
+        } else {
+          imageURL = randomUnsplashURL(size);
+        }
 
         try {
           let response = requestWithURL(imageURL);
@@ -145,24 +187,6 @@ export function onUnsplash(context) {
   }
 }
 
-export function onSettings(context) {
-  let items = ['1', '2', '3', '4'];
-  let selectedIndex = items.findIndex(item => item === String(options.scaleFactor));
-
-  let selection = UI.getSelectionFromUser(
-    'Select the factor for scaling images',
-    items,
-    selectedIndex
-  );
-
-  let ok = selection[2];
-  if (ok) {
-    let value = parseInt(items[selection[1]]);
-    options.scaleFactor = value;
-    Settings.setSettingForKey('scaleFactor', value);
-  }
-}
-
 function getForeignSymbolMasters(document) {
   let foreignSymbolList = document.sketchObject.documentData().foreignSymbols();
   let symbolMasters = [];
@@ -193,6 +217,13 @@ function randomUnsplashURL(size) {
   let height = Math.round(size.height * options.scaleFactor);
   let randomImageIndex = Math.floor(Math.random() * 1000);
   return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
+}
+
+function unsplashSearchURL(size) {
+  let width = Math.round(size.width * options.scaleFactor);
+  let height = Math.round(size.height * options.scaleFactor);
+  let randomImageIndex = Math.floor(Math.random() * 1000);
+  return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + randomImageIndex;
 }
 
 function requestWithURL(url) {

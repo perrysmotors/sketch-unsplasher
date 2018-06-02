@@ -80,12 +80,13 @@ var exports =
 /*!***************************!*\
   !*** ./src/unsplasher.js ***!
   \***************************/
-/*! exports provided: onUnsplash, onSettings */
+/*! exports provided: onRandom, onSearch, onSettings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onUnsplash", function() { return onUnsplash; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onRandom", function() { return onRandom; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onSearch", function() { return onSearch; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onSettings", function() { return onSettings; });
 var UI = __webpack_require__(/*! sketch/ui */ "sketch/ui"),
     DOM = __webpack_require__(/*! sketch/dom */ "sketch/dom"),
@@ -128,7 +129,40 @@ function evaluateString(string) {
   }
 }
 
-function onUnsplash(context) {
+function onRandom(context) {
+  unsplash();
+}
+function onSearch(context) {
+  var inputString = UI.getStringFromUser('Enter a search term', options.searchTerms);
+  var cleanValue = inputString.replace(/[\s,]+/g, ' ').trim().replace(/\s+/g, ',').toLowerCase();
+
+  if (inputString != 'null') {
+    if (cleanValue === '') {
+      UI.message('⚠️ You need to enter a keyword to search for.');
+    } else {
+      options.searchTerms = cleanValue;
+      Settings.setSettingForKey('searchTerms', cleanValue);
+      unsplash('search');
+    }
+  }
+}
+function onSettings(context) {
+  var items = ['1', '2', '3', '4'];
+  var selectedIndex = items.findIndex(function (item) {
+    return item === String(options.scaleFactor);
+  });
+  var selection = UI.getSelectionFromUser('Select the factor for scaling images', items, selectedIndex);
+  var ok = selection[2];
+
+  if (ok) {
+    var value = parseInt(items[selection[1]]);
+    options.scaleFactor = value;
+    Settings.setSettingForKey('scaleFactor', value);
+  }
+}
+
+function unsplash() {
+  var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'random';
   var document = DOM.getSelectedDocument(),
       selection = document.selectedLayers,
       selectedLayers = document.selectedLayers.layers;
@@ -146,7 +180,13 @@ function onUnsplash(context) {
           width: layer.frame.width,
           height: layer.frame.height
         };
-        var imageURL = randomUnsplashURL(size);
+        var imageURL;
+
+        if (type === 'search') {
+          imageURL = unsplashSearchURL(size);
+        } else {
+          imageURL = randomUnsplashURL(size);
+        }
 
         try {
           var response = requestWithURL(imageURL);
@@ -234,20 +274,6 @@ function onUnsplash(context) {
     });
   }
 }
-function onSettings(context) {
-  var items = ['1', '2', '3', '4'];
-  var selectedIndex = items.findIndex(function (item) {
-    return item === String(options.scaleFactor);
-  });
-  var selection = UI.getSelectionFromUser('Select the factor for scaling images', items, selectedIndex);
-  var ok = selection[2];
-
-  if (ok) {
-    var value = parseInt(items[selection[1]]);
-    options.scaleFactor = value;
-    Settings.setSettingForKey('scaleFactor', value);
-  }
-}
 
 function getForeignSymbolMasters(document) {
   var foreignSymbolList = document.sketchObject.documentData().foreignSymbols();
@@ -311,6 +337,13 @@ function randomUnsplashURL(size) {
   return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
 }
 
+function unsplashSearchURL(size) {
+  var width = Math.round(size.width * options.scaleFactor);
+  var height = Math.round(size.height * options.scaleFactor);
+  var randomImageIndex = Math.floor(Math.random() * 1000);
+  return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + randomImageIndex;
+}
+
 function requestWithURL(url) {
   var request = NSURLRequest.requestWithURL(NSURL.URLWithString(url));
   return NSURLConnection.sendSynchronousRequest_returningResponse_error(request, null, null);
@@ -358,8 +391,9 @@ module.exports = require("sketch/ui");
     exports[key](context);
   }
 }
-that['onUnsplash'] = __skpm_run.bind(this, 'onUnsplash');
+that['onRandom'] = __skpm_run.bind(this, 'onRandom');
 that['onRun'] = __skpm_run.bind(this, 'default');
+that['onSearch'] = __skpm_run.bind(this, 'onSearch');
 that['onSettings'] = __skpm_run.bind(this, 'onSettings')
 
 //# sourceMappingURL=unsplasher.js.map

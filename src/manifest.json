@@ -4,11 +4,17 @@
   "icon": "icon.png",
   "commands": [
     {
-      "name": "Fill with Images from Unsplash",
+      "name": "Fill with Random Images",
       "identifier": "randomImages",
       "shortcut": "ctrl command u",
       "script": "./unsplasher.js",
-      "handler": "onUnsplash"
+      "handler": "onRandom"
+    },
+    {
+      "name": "Fill Based on a Search Term",
+      "identifier": "search",
+      "script": "./unsplasher.js",
+      "handler": "onSearch"
     },
     {
       "name": "Settings",
@@ -21,6 +27,7 @@
     "title": "Unsplasher",
     "items": [
       "randomImages",
+      "search",
       "-",
       "settings"
     ]
