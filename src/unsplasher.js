@@ -100,6 +100,7 @@ function unsplash(type = 'random') {
   } else {
 
     let foreignSymbolMasters = getForeignSymbolMasters(document);
+    let imageIndex = 1;
 
     imageLayers.forEach(layer => {
 
@@ -110,7 +111,7 @@ function unsplash(type = 'random') {
           height: layer.frame.height
         };
 
-        let imageURL = getUnsplashURL(size, type);
+        let imageURL = getUnsplashURL(size, type, imageIndex++);
 
         try {
           let response = requestWithURL(imageURL);
@@ -172,7 +173,7 @@ function unsplash(type = 'random') {
 
         });
 
-        let imageURL = getUnsplashURL(largestSize, type);
+        let imageURL = getUnsplashURL(largestSize, type, imageIndex++);
 
         try {
           let response = requestWithURL(imageURL);
@@ -221,17 +222,16 @@ function getInstanceScale(instance) { // Expects sketchObject
   return {x: xScale, y: yScale};
 }
 
-function getUnsplashURL(size, type) {
+function getUnsplashURL(size, type, index) {
   let width = Math.round(size.width * options.scaleFactor);
   let height = Math.round(size.height * options.scaleFactor);
-  let randomImageIndex = Math.floor(Math.random() * 1000);
 
   if (type === 'search') {
-    return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + randomImageIndex;
+    return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + index;
   } else if (type === 'collection') {
-    return 'https://source.unsplash.com/collection/' + options.collectionID + '/' + width + 'x' + height + '/?sig=' + randomImageIndex;
+    return 'https://source.unsplash.com/collection/' + options.collectionID + '/' + width + 'x' + height + '/?sig=' + index;
   } else {
-    return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
+    return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + index;
   }
 }
 
