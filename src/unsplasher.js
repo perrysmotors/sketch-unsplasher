@@ -1,8 +1,93 @@
 const UI = require('sketch/ui'),
       DOM = require('sketch/dom'),
+      Settings = require('sketch/settings'),
       SymbolMaster = DOM.SymbolMaster;
 
-export function onUnsplash(context) {
+var options = initOptions();
+
+function initOptions() {
+  const defaults = {
+    scaleFactor: 2,
+    searchTerms: 'landscape',
+    collectionID: '1111575'
+  };
+  for (let option in defaults) {
+    let value = evaluateString(Settings.settingForKey(option));
+    if (value === undefined) {
+      Settings.setSettingForKey(option, defaults[option]);
+    } else {
+      defaults[option] = value;
+    }
+  }
+  return defaults
+}
+
+function evaluateString(string) {
+  if (string === 'true') {
+    return true;
+  } else if (string === 'false') {
+    return false;
+  } else if (string === String(parseInt(string))) {
+    return parseInt(string);
+  } else if (string === String(parseFloat(string))) {
+    return parseFloat(string);
+  } else {
+    return string;
+  }
+}
+
+export function onRandom(context) {
+  unsplash();
+}
+
+export function onSearch(context) {
+  let inputString = UI.getStringFromUser('Enter a search term', options.searchTerms);
+  let cleanValue = inputString.replace(/[\s,]+/g,' ').trim().replace(/\s+/g,',').toLowerCase();
+
+  if (inputString != 'null') {
+    if (cleanValue === '') {
+      UI.message('⚠️ You need to enter a keyword to search for.');
+    } else {
+      options.searchTerms = cleanValue;
+      Settings.setSettingForKey('searchTerms', cleanValue);
+      unsplash('search');
+    }
+  }
+}
+
+export function onCollection(context) {
+  let inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID);
+
+  if (inputString != 'null') {
+    if (inputString === '') {
+      UI.message('⚠️ You need to enter a valid Collection ID.');
+    } else {
+      options.collectionID = inputString;
+      Settings.setSettingForKey('collectionID', inputString);
+      unsplash('collection');
+    }
+  }
+}
+
+export function onSettings(context) {
+  let items = ['1', '2', '3', '4'];
+  let selectedIndex = items.findIndex(item => item === String(options.scaleFactor));
+
+  let selection = UI.getSelectionFromUser(
+    'Select the factor for scaling images',
+    items,
+    selectedIndex
+  );
+
+  let ok = selection[2];
+  if (ok) {
+    let value = parseInt(items[selection[1]]);
+    options.scaleFactor = value;
+    Settings.setSettingForKey('scaleFactor', value);
+  }
+}
+
+function unsplash(type = 'random') {
 
   var document = DOM.getSelectedDocument(),
       selection = document.selectedLayers,
@@ -15,6 +100,7 @@ export function onUnsplash(context) {
   } else {
 
     let foreignSymbolMasters = getForeignSymbolMasters(document);
+    let imageIndex = 1;
 
     imageLayers.forEach(layer => {
 
@@ -25,7 +111,7 @@ export function onUnsplash(context) {
           height: layer.frame.height
         };
 
-        let imageURL = randomUnsplashURL(size);
+        let imageURL = getUnsplashURL(size, type, imageIndex++);
 
         try {
           let response = requestWithURL(imageURL);
@@ -87,7 +173,7 @@ export function onUnsplash(context) {
 
         });
 
-        let imageURL = randomUnsplashURL(largestSize);
+        let imageURL = getUnsplashURL(largestSize, type, imageIndex++);
 
         try {
           let response = requestWithURL(imageURL);
@@ -136,11 +222,17 @@ function getInstanceScale(instance) { // Expects sketchObject
   return {x: xScale, y: yScale};
 }
 
-function randomUnsplashURL(size) {
-  let width = Math.round(size.width * 2);
-  let height = Math.round(size.height * 2);
-  let randomImageIndex = Math.floor(Math.random() * 1000);
-  return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
+function getUnsplashURL(size, type, index) {
+  let width = Math.round(size.width * options.scaleFactor);
+  let height = Math.round(size.height * options.scaleFactor);
+
+  if (type === 'search') {
+    return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + index;
+  } else if (type === 'collection') {
+    return 'https://source.unsplash.com/collection/' + options.collectionID + '/' + width + 'x' + height + '/?sig=' + index;
+  } else {
+    return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + index;
+  }
 }
 
 function requestWithURL(url) {

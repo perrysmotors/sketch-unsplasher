@@ -4,17 +4,39 @@
   "icon": "icon.png",
   "commands": [
     {
-      "name": "Fill with Images from Unsplash",
+      "name": "Fill with Random Images",
       "identifier": "randomImages",
       "shortcut": "ctrl command u",
       "script": "unsplasher.js",
-      "handler": "onUnsplash"
+      "handler": "onRandom"
+    },
+    {
+      "name": "Fill Based on a Search Term",
+      "identifier": "search",
+      "script": "unsplasher.js",
+      "handler": "onSearch"
+    },
+    {
+      "name": "Fill from a Collection",
+      "identifier": "collection",
+      "script": "unsplasher.js",
+      "handler": "onCollection"
+    },
+    {
+      "name": "Settings",
+      "identifier": "settings",
+      "script": "unsplasher.js",
+      "handler": "onSettings"
     }
   ],
   "menu": {
     "title": "Unsplasher",
     "items": [
-      "randomImages"
+      "randomImages",
+      "search",
+      "collection",
+      "-",
+      "settings"
     ]
   },
   "version": "0.1.1-0",

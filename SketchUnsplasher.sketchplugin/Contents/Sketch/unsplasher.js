@@ -80,17 +80,103 @@ var exports =
 /*!***************************!*\
   !*** ./src/unsplasher.js ***!
   \***************************/
-/*! exports provided: onUnsplash */
+/*! exports provided: onRandom, onSearch, onCollection, onSettings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onUnsplash", function() { return onUnsplash; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onRandom", function() { return onRandom; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onSearch", function() { return onSearch; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onCollection", function() { return onCollection; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "onSettings", function() { return onSettings; });
 var UI = __webpack_require__(/*! sketch/ui */ "sketch/ui"),
     DOM = __webpack_require__(/*! sketch/dom */ "sketch/dom"),
+    Settings = __webpack_require__(/*! sketch/settings */ "sketch/settings"),
     SymbolMaster = DOM.SymbolMaster;
 
-function onUnsplash(context) {
+var options = initOptions();
+
+function initOptions() {
+  var defaults = {
+    scaleFactor: 2,
+    searchTerms: 'landscape',
+    collectionID: '1111575'
+  };
+
+  for (var option in defaults) {
+    var value = evaluateString(Settings.settingForKey(option));
+
+    if (value === undefined) {
+      Settings.setSettingForKey(option, defaults[option]);
+    } else {
+      defaults[option] = value;
+    }
+  }
+
+  return defaults;
+}
+
+function evaluateString(string) {
+  if (string === 'true') {
+    return true;
+  } else if (string === 'false') {
+    return false;
+  } else if (string === String(parseInt(string))) {
+    return parseInt(string);
+  } else if (string === String(parseFloat(string))) {
+    return parseFloat(string);
+  } else {
+    return string;
+  }
+}
+
+function onRandom(context) {
+  unsplash();
+}
+function onSearch(context) {
+  var inputString = UI.getStringFromUser('Enter a search term', options.searchTerms);
+  var cleanValue = inputString.replace(/[\s,]+/g, ' ').trim().replace(/\s+/g, ',').toLowerCase();
+
+  if (inputString != 'null') {
+    if (cleanValue === '') {
+      UI.message('⚠️ You need to enter a keyword to search for.');
+    } else {
+      options.searchTerms = cleanValue;
+      Settings.setSettingForKey('searchTerms', cleanValue);
+      unsplash('search');
+    }
+  }
+}
+function onCollection(context) {
+  var inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID);
+
+  if (inputString != 'null') {
+    if (inputString === '') {
+      UI.message('⚠️ You need to enter a valid Collection ID.');
+    } else {
+      options.collectionID = inputString;
+      Settings.setSettingForKey('collectionID', inputString);
+      unsplash('collection');
+    }
+  }
+}
+function onSettings(context) {
+  var items = ['1', '2', '3', '4'];
+  var selectedIndex = items.findIndex(function (item) {
+    return item === String(options.scaleFactor);
+  });
+  var selection = UI.getSelectionFromUser('Select the factor for scaling images', items, selectedIndex);
+  var ok = selection[2];
+
+  if (ok) {
+    var value = parseInt(items[selection[1]]);
+    options.scaleFactor = value;
+    Settings.setSettingForKey('scaleFactor', value);
+  }
+}
+
+function unsplash() {
+  var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'random';
   var document = DOM.getSelectedDocument(),
       selection = document.selectedLayers,
       selectedLayers = document.selectedLayers.layers;
@@ -102,13 +188,14 @@ function onUnsplash(context) {
     UI.message('Select some shapes or symbols');
   } else {
     var foreignSymbolMasters = getForeignSymbolMasters(document);
+    var imageIndex = 1;
     imageLayers.forEach(function (layer) {
       if (layer.type === 'Shape') {
         var size = {
           width: layer.frame.width,
           height: layer.frame.height
         };
-        var imageURL = randomUnsplashURL(size);
+        var imageURL = getUnsplashURL(size, type, imageIndex++);
 
         try {
           var response = requestWithURL(imageURL);
@@ -171,7 +258,7 @@ function onUnsplash(context) {
           }
         });
 
-        var _imageURL = randomUnsplashURL(largestSize);
+        var _imageURL = getUnsplashURL(largestSize, type, imageIndex++);
 
         try {
           var _response = requestWithURL(_imageURL);
@@ -252,11 +339,17 @@ function getInstanceScale(instance) {
   };
 }
 
-function randomUnsplashURL(size) {
-  var width = Math.round(size.width * 2);
-  var height = Math.round(size.height * 2);
-  var randomImageIndex = Math.floor(Math.random() * 1000);
-  return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + randomImageIndex;
+function getUnsplashURL(size, type, index) {
+  var width = Math.round(size.width * options.scaleFactor);
+  var height = Math.round(size.height * options.scaleFactor);
+
+  if (type === 'search') {
+    return 'https://source.unsplash.com/' + width + 'x' + height + '/?' + options.searchTerms + '&sig=' + index;
+  } else if (type === 'collection') {
+    return 'https://source.unsplash.com/collection/' + options.collectionID + '/' + width + 'x' + height + '/?sig=' + index;
+  } else {
+    return 'https://source.unsplash.com/random/' + width + 'x' + height + '/?sig=' + index;
+  }
 }
 
 function requestWithURL(url) {
@@ -274,6 +367,17 @@ function requestWithURL(url) {
 /***/ (function(module, exports) {
 
 module.exports = require("sketch/dom");
+
+/***/ }),
+
+/***/ "sketch/settings":
+/*!**********************************!*\
+  !*** external "sketch/settings" ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("sketch/settings");
 
 /***/ }),
 
@@ -295,7 +399,10 @@ module.exports = require("sketch/ui");
     exports[key](context);
   }
 }
-that['onUnsplash'] = __skpm_run.bind(this, 'onUnsplash');
-that['onRun'] = __skpm_run.bind(this, 'default')
+that['onRandom'] = __skpm_run.bind(this, 'onRandom');
+that['onRun'] = __skpm_run.bind(this, 'default');
+that['onSearch'] = __skpm_run.bind(this, 'onSearch');
+that['onCollection'] = __skpm_run.bind(this, 'onCollection');
+that['onSettings'] = __skpm_run.bind(this, 'onSettings')
 
 //# sourceMappingURL=unsplasher.js.map
