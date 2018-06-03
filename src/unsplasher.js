@@ -56,7 +56,7 @@ export function onSearch(context) {
 }
 
 export function onCollection(context) {
-  let inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID);
+  let inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID).trim();
 
   if (inputString != 'null') {
     if (inputString === '') {

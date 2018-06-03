@@ -148,7 +148,7 @@ function onSearch(context) {
   }
 }
 function onCollection(context) {
-  var inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID);
+  var inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID).trim();
 
   if (inputString != 'null') {
     if (inputString === '') {
