@@ -6,9 +6,16 @@ A Sketch plugin that can fill shapes and symbols with images from Unsplash.
 ## Features
 - Works for shape layers, or symbol instances that have image overrides.
 - Fills the largest image override of any selected symbol with a random image from Unsplash.
+- Find images using a search term or by specifying a Collection.
+- Support for @1x, @2x, @3x or @4x images
 
-## Install
-Download or clone the repository, and double click `SketchUnsplasher.sketchplugin`.
+## Installation
+
+_Requires Sketch 49+_
+
+* [Download](https://github.com/perrysmotors/sketch-unsplasher/releases/latest) the latest release of the plugin
+* Un-zip
+* Double-click on `SketchUnsplasher.sketchplugin`
 
 or...
 
