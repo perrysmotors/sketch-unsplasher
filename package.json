@@ -2,7 +2,7 @@
   "name": "sketch-unsplasher",
   "description": "Fills shapes or symbols with images from Unsplash",
   "author": "Giles Perry <giles@gilesperry.info> (http://gilesperry.info/)",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "engines": {
     "sketch": ">=3.0"
   },
