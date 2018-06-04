@@ -12,7 +12,7 @@ function initOptions() {
     collectionID: '1111575'
   };
   for (let option in defaults) {
-    let value = evaluateString(Settings.settingForKey(option));
+    let value = Settings.settingForKey(option);
     if (value === undefined) {
       Settings.setSettingForKey(option, defaults[option]);
     } else {
@@ -22,27 +22,14 @@ function initOptions() {
   return defaults
 }
 
-function evaluateString(string) {
-  if (string === 'true') {
-    return true;
-  } else if (string === 'false') {
-    return false;
-  } else if (string === String(parseInt(string))) {
-    return parseInt(string);
-  } else if (string === String(parseFloat(string))) {
-    return parseFloat(string);
-  } else {
-    return string;
-  }
-}
-
 export function onRandom(context) {
   unsplash();
 }
 
 export function onSearch(context) {
   let inputString = UI.getStringFromUser('Enter a search term', options.searchTerms);
-  let cleanValue = inputString.replace(/[\s,]+/g,' ').trim().replace(/\s+/g,',').toLowerCase();
+  let cleanValue = inputString.replace(/[^0-9a-z, ]/gi, ' '); // Replace non-alphanumeric characters except commas with spaces
+  cleanValue = cleanValue.replace(/[\s,]+/g,' ').trim().replace(/\s+/g,',').toLowerCase(); // Make lowercase and comma separate words
 
   if (inputString != 'null') {
     if (cleanValue === '') {
@@ -56,14 +43,15 @@ export function onSearch(context) {
 }
 
 export function onCollection(context) {
-  let inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID).trim();
+  let inputString = UI.getStringFromUser('Enter a Collection ID', options.collectionID);
+  let cleanValue = inputString.replace(/\D/g, ''); // Remove non-numeric characters
 
   if (inputString != 'null') {
-    if (inputString === '') {
+    if (cleanValue === '') {
       UI.message('⚠️ You need to enter a valid Collection ID.');
     } else {
-      options.collectionID = inputString;
-      Settings.setSettingForKey('collectionID', inputString);
+      options.collectionID = cleanValue;
+      Settings.setSettingForKey('collectionID', cleanValue);
       unsplash('collection');
     }
   }
