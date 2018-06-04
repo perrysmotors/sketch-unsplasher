@@ -23,6 +23,14 @@ or...
 
 ---
 
+## How use with Unsplash Collections
+
+1. Pick a [Collection](https://unsplash.com/collections)
+2. Copy the Collection ID from the collection page's URL (it should be a 7 digit number)
+3. Pick **Unsplasher > Fill from a Collection** and paste in the ID in the input dialog
+
+---
+
 **If you are using this plugin, please 'star' the project**. It's a simple way to help me see how many people are using it.
 
 If you ***love*** this plugin, why not shout me a coffee ☕️ via [PayPal](https://www.paypal.me/perrysmotors/2) to share the love!
