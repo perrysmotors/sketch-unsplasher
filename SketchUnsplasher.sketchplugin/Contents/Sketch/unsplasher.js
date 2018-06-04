@@ -104,7 +104,7 @@ function initOptions() {
   };
 
   for (var option in defaults) {
-    var value = evaluateString(Settings.settingForKey(option));
+    var value = Settings.settingForKey(option);
 
     if (value === undefined) {
       Settings.setSettingForKey(option, defaults[option]);
@@ -114,20 +114,6 @@ function initOptions() {
   }
 
   return defaults;
-}
-
-function evaluateString(string) {
-  if (string === 'true') {
-    return true;
-  } else if (string === 'false') {
-    return false;
-  } else if (string === String(parseInt(string))) {
-    return parseInt(string);
-  } else if (string === String(parseFloat(string))) {
-    return parseFloat(string);
-  } else {
-    return string;
-  }
 }
 
 function onRandom(context) {

@@ -12,7 +12,7 @@ function initOptions() {
     collectionID: '1111575'
   };
   for (let option in defaults) {
-    let value = evaluateString(Settings.settingForKey(option));
+    let value = Settings.settingForKey(option);
     if (value === undefined) {
       Settings.setSettingForKey(option, defaults[option]);
     } else {
@@ -20,20 +20,6 @@ function initOptions() {
     }
   }
   return defaults
-}
-
-function evaluateString(string) {
-  if (string === 'true') {
-    return true;
-  } else if (string === 'false') {
-    return false;
-  } else if (string === String(parseInt(string))) {
-    return parseInt(string);
-  } else if (string === String(parseFloat(string))) {
-    return parseFloat(string);
-  } else {
-    return string;
-  }
 }
 
 export function onRandom(context) {
