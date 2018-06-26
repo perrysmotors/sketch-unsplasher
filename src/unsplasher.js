@@ -121,11 +121,13 @@ function unsplash(type = 'random') {
 
       } else {
 
-        let imageOverrides = layer.overrides.filter(override => override.property === 'image');
+        let imageOverrides = layer.overrides.filter(override => {
+          return override.property === 'image' && !override.sketchObject.isAffectedLayerOrParentLocked() && !override.sketchObject.isAffectedLayerOrParentHidden(); // locked and hidden layers must be filtered because they are not excluded by API
+        });
         let scale = getInstanceScale(layer.sketchObject); // Approx. scale depending on constraints
         let largestOverride, largestSize, largestArea = 0;
 
-        imageOverrides.forEach((override) => {
+        imageOverrides.forEach(override => {
 
           let affectedLayer = override.sketchObject.affectedLayer();
 
